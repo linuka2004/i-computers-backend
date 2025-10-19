@@ -3,9 +3,14 @@ import mongoose from "mongoose"
 import userRouter from "./routes/userRouter.js"
 import jwt from "jsonwebtoken"
 import productRouter from "./routes/productRouter.js"
+import cors from "cors"
+import dotenv from "dotenv"
 
 
-const mongoURI = "mongodb+srv://linuka_j:linuka_j@cluster0.bq49yut.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+dotenv.config()
+
+const mongoURI = process.env.MONGO_URL
+// "mongodb+srv://linuka_j:linuka_j@cluster0.bq49yut.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 
 mongoose.connect(mongoURI).then(
@@ -17,7 +22,9 @@ mongoose.connect(mongoURI).then(
 
 const app = express()
 
-
+app.use(
+    cors()
+)
 
 app.use(express.json())
 
@@ -31,7 +38,7 @@ app.use(
 
             //console.log(token)
 
-            jwt.verify(token, "secretKey96#2025",
+            jwt.verify(token, process.env.JWT_SECRET,
                 (error,content)=>{
                     if(content == null){
                         console.log("invalid token")
@@ -60,8 +67,8 @@ app.use(
     }
 )
 
-app.use ("/users",userRouter)
-app.use("/products",productRouter)
+app.use ("/api/users",userRouter)
+app.use("/api/products",productRouter)
 
 
 app.listen(5000 , 

@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+
 //create user
 export function createUser(req,res){
 
@@ -62,13 +63,14 @@ export function loginUser(req,res){
                     image : user.image
                 };
 
-                const token = jwt.sign(payload,"secretKey96#2025",{
+                const token = jwt.sign(payload,process.env.JWT_SECRET,{
                     expiresIn: "150h"
                 })
 
                     res.json({
                         message: "Login successful",
-                        token : token
+                        token : token,
+                        role : user.role,
                     })
                 }else{
                     /*User.updateOne({email:email},{
@@ -77,7 +79,7 @@ export function loginUser(req,res){
                         res.json({
                         message: "Invalid password",
                     })})*/
-                   res.json({
+                   res.status(401).json({
                     message : "Invalid password"
                    })
 
