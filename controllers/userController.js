@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
+import dotenv from "dotenv";
 
 //create user
 export function createUser(req,res){
@@ -27,68 +27,109 @@ export function createUser(req,res){
     )
 }
 
-export function loginUser(req,res){
+export function loginUser(req, res) {
+	const email = req.body.email;
+	const password = req.body.password;
 
-    const email = req.body.email
-    const password = req.body.password
+	User.find({ email: email }).then((users) => {
+		if (users[0] == null) {
+			res.json({
+				message: "User not found",
+			});
+		} else {
+			const user = users[0];
 
-    User.find({email : email}).then(
-        (users)=>{
-            if(users[0] == null){
-                res.json({
-                    message: "User not found"
-                })
-            }else{
-                const user = users[0];
-                
-                /*if(user.invalidTries > 3){
-                    res.json({
-                        message: "Your account is temporarily locked due to multiple failed login attempts"
-                    });
-                    return;
-                }*/
+			const isPasswordCorrect = bcrypt.compareSync(password, user.password);
 
-                const isPasswordCorrect = bcrypt.compareSync(password,user.password)
+			if (isPasswordCorrect) {
+				const payload = {
+					email: user.email,
+					firstName: user.firstName,
+					lastName: user.lastName,
+					role: user.role,
+					isEmailVerified: user.isEmailVerified,
+					image: user.image,
+				};
 
+				const token = jwt.sign(payload, process.env.JWT_SECRET, {
+					expiresIn: "150h",
+				});
 
-                if(isPasswordCorrect){
-
-                    
-                const payload = {
-                    email: user.email,
-                    firstName : user.firstName,
-                    lastName : user.lastName,
-                    role : user.role,
-                    isEmailVerified : user.isEmailVerified,
-                    image : user.image
-                };
-
-                const token = jwt.sign(payload,process.env.JWT_SECRET,{
-                    expiresIn: "150h"
-                })
-
-                    res.json({
-                        message: "Login successful",
-                        token : token,
-                        role : user.role,
-                    })
-                }else{
-                    /*User.updateOne({email:email},{
-                        invalidTries: user.invalidTries + 1
-                    }).then(()=>{
-                        res.json({
-                        message: "Invalid password",
-                    })})*/
-                   res.status(401).json({
-                    message : "Invalid password"
-                   })
-
-                    
-                }
-            }
-        }
-    )
+				res.json({
+					message: "Login successful",
+					token: token,
+                    role:user.role,
+				});
+			} else {
+				res.status(401).json({
+					message: "Invalid password",
+				});
+			}
+		}
+	});
 }
+// export function loginUser(req,res){
+
+//     const email = req.body.email
+//     const password = req.body.password
+
+//     User.find({email : email}).then(
+//         (users)=>{
+//             if(users[0] == null){
+//                 res.json({
+//                     message: "User not found"
+//                 })
+//             }else{
+//                 const user = users[0];
+                
+//                 /*if(user.invalidTries > 3){
+//                     res.json({
+//                         message: "Your account is temporarily locked due to multiple failed login attempts"
+//                     });
+//                     return;
+//                 }*/
+
+//                 const isPasswordCorrect = bcrypt.compareSync(password,user.password)
+
+
+//                 if(isPasswordCorrect){
+
+                    
+//                 const payload = {
+//                     email: user.email,
+//                     firstName : user.firstName,
+//                     lastName : user.lastName,
+//                     role : user.role,
+//                     isEmailVerified : user.isEmailVerified,
+//                     image : user.image
+//                 };
+
+//                 const token = jwt.sign(payload,process.env.JWT_SECRET,{
+//                     expiresIn: "150h"
+//                 })
+
+//                     res.json({
+//                         message: "Login successful",
+//                         token : token,
+//                         role : user.role,
+//                     })
+//                 }else{
+//                     /*User.updateOne({email:email},{
+//                         invalidTries: user.invalidTries + 1
+//                     }).then(()=>{
+//                         res.json({
+//                         message: "Invalid password",
+//                     })})*/
+//                    res.status(401).json({
+//                     message : "Invalid password"
+//                    })
+
+                    
+//                 }
+//             }
+//         }
+//     )
+// }
 
 export function isAdmin(req){
   if(req.user == null){

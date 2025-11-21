@@ -7,10 +7,10 @@ import cors from "cors"
 import dotenv from "dotenv"
 
 
-dotenv.config()
+dotenv.config()  // load the .env file contents
 
-const mongoURI = process.env.MONGO_URL
-// "mongodb+srv://linuka_j:linuka_j@cluster0.bq49yut.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+const mongoURI = process.env.MONGO_URL  // read the MONGO_URL value from .env file
+
 
 
 mongoose.connect(mongoURI).then(
@@ -23,9 +23,12 @@ mongoose.connect(mongoURI).then(
 const app = express()
 
 app.use(
-    cors()
+    cors()   // allow all origins (websites
 )
-
+// app.use(
+//     cors({
+//       origin : "http://localhost:3000"}) mehem dann puluwn apita mokkhri specific API ekakata access denna
+// )
 app.use(express.json())
 
 app.use(
