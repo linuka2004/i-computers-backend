@@ -48,7 +48,6 @@ app.use(
                         res.json({
                             message:"Invalid token"
                         })
-
                         return
                     }else{
                         
