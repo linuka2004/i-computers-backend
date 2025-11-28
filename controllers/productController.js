@@ -40,7 +40,8 @@ export function getAllProducts(req, res) {
 				});
 			});
 	} else {
-		Product.find({ isAvailable: true })
+		// Product.find()
+    Product.find({ isAvailable: true })
 			.then((products) => {
 				res.json(products);
 			})
