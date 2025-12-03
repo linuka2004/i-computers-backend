@@ -117,6 +117,34 @@ export async  function getOrders(req, res){
         res.json(orders)
 
     }
+
+}
+
+export async function updateOrderStatus(req, res){
+    if(!isAdmin(req)){
+        res.status(401).json({
+            message: "Unauthorized"
+        });
+        return;
+    }try{
+        const orderId = req.params.orderId
+        const status = req.body.status
+        const notes = req.body.notes
+
+        await Order.updateOne(
+            {orderId : orderId},
+            {status : status, notes : notes}
+            
+        )
+        res.json({
+            message : "Order updated successfully"
+        })
+    }catch(error){
+        res.status(500).json({
+            message : "Error updating order status",
+            error : error.message
+        });
+    }
 }
 
 
